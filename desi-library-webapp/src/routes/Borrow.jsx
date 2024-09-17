@@ -9,58 +9,9 @@ import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import { useState } from "react";
 
-function Borrow() {
+const BookTile = ({ book, onActionClick }) => {
   const [fetching, setFetching] = useState(false);
-  const [borrowableBooksData, setBorrowableBooksData] = useData(
-    "/book/borrowablebooks",
-    "GET"
-  );
-  const [unBorrowableBooksData, setUnBorrowableBooksData] = useData(
-    "/book/unborrowablebooks",
-    "GET"
-  );
-
-  const setBookBorrowed = async (bookId) => {
-    setFetching(true);
-    await makeRequest(`/book/UpdateBookBorrowStatus/${bookId}`, "PUT");
-    setUnBorrowableBooksData([
-      ...unBorrowableBooksData,
-      { ...borrowableBooksData.find((b) => b.id === bookId), borrowed: true },
-    ]);
-    setBorrowableBooksData(
-      borrowableBooksData.filter((book) => book.id !== bookId)
-    );
-
-    setFetching(false);
-  };
-
-  const setBookReturned = async (bookId) => {
-    setFetching(true);
-
-    await makeRequest(`/book/UpdateBookBorrowStatus/${bookId}`, "PUT");
-    setBorrowableBooksData([
-      ...borrowableBooksData,
-      {
-        ...unBorrowableBooksData.find((b) => b.id === bookId),
-        borrowed: false,
-      },
-    ]);
-    setUnBorrowableBooksData(
-      unBorrowableBooksData.filter((book) => book.id !== bookId)
-    );
-
-    setFetching(false);
-  };
-
-  if (!borrowableBooksData || !unBorrowableBooksData) {
-    return (
-      <CircularProgress
-        sx={{ marginLeft: "auto", marginRight: "auto", display: "flex" }}
-      />
-    );
-  }
-
-  const bookTile = (book) => (
+  return (
     <Paper
       key={book.id}
       elevation={3}
@@ -85,7 +36,6 @@ function Borrow() {
         <ListItem>
           <ListItemText primary="Author" secondary={book.author} />
         </ListItem>
-
         <ListItem>
           <ListItemText primary="Language" secondary={book.language} />
         </ListItem>
@@ -98,18 +48,66 @@ function Borrow() {
         variant="contained"
         color={!book.borrowed ? "primary" : "secondary"}
         sx={{ width: "150px" }}
-        onClick={() =>
-          book.borrowed ? setBookReturned(book.id) : setBookBorrowed(book.id)
-        }
+        onClick={() => onActionClick(setFetching)}
       >
         {book.borrowed ? "Return" : "Borrow"}
       </Button>
     </Paper>
   );
+};
+
+function Borrow() {
+  const [borrowableBooksData, setBorrowableBooksData] = useData(
+    "/book/borrowablebooks",
+    "GET"
+  );
+  const [unBorrowableBooksData, setUnBorrowableBooksData] = useData(
+    "/book/unborrowablebooks",
+    "GET"
+  );
+
+  const handleBookAction = async (bookId, borrowed, setFetching) => {
+    setFetching(true);
+    await makeRequest(`/book/UpdateBookBorrowStatus/${bookId}`, "PUT");
+
+    if (borrowed) {
+      setUnBorrowableBooksData((prev) =>
+        prev.filter((book) => book.id !== bookId)
+      );
+      setBorrowableBooksData((prev) => [
+        ...prev,
+        {
+          ...unBorrowableBooksData.find((book) => book.id === bookId),
+          borrowed: false,
+        },
+      ]);
+    } else {
+      setBorrowableBooksData((prev) =>
+        prev.filter((book) => book.id !== bookId)
+      );
+      setUnBorrowableBooksData((prev) => [
+        ...prev,
+        {
+          ...borrowableBooksData.find((book) => book.id === bookId),
+          borrowed: true,
+        },
+      ]);
+    }
+
+    setFetching(false);
+  };
+
+  if (!borrowableBooksData || !unBorrowableBooksData) {
+    return (
+      <CircularProgress
+        sx={{ marginLeft: "auto", marginRight: "auto", display: "flex" }}
+      />
+    );
+  }
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom align="center" pb={"20px"}>
+      <Typography variant="h6" gutterBottom align="center" pb={2}>
         Borrow/Return a Book
       </Typography>
       <Box
@@ -120,15 +118,31 @@ function Borrow() {
           gap: 2,
         }}
       >
-        <Typography gutterBottom align="center" p={"20px"} width={"100%"}>
-          Burrow
+        <Typography gutterBottom align="center" p={2} width="100%">
+          Borrow
         </Typography>
-        {borrowableBooksData.map((book) => bookTile(book))}
+        {borrowableBooksData.map((book) => (
+          <BookTile
+            key={book.id}
+            book={book}
+            onActionClick={(setFetching) =>
+              handleBookAction(book.id, false, setFetching)
+            }
+          />
+        ))}
 
-        <Typography gutterBottom align="center" p={"20px"} width={"100%"}>
+        <Typography gutterBottom align="center" p={2} width="100%">
           Return
         </Typography>
-        {unBorrowableBooksData.map((book) => bookTile(book))}
+        {unBorrowableBooksData.map((book) => (
+          <BookTile
+            key={book.id}
+            book={book}
+            onActionClick={(setFetching) =>
+              handleBookAction(book.id, true, setFetching)
+            }
+          />
+        ))}
       </Box>
     </Box>
   );
