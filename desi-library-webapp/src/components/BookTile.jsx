@@ -9,6 +9,7 @@ const BookTile = ({ book, onActionClick }) => {
   const [fetching, setFetching] = useState(false);
   return (
     <Paper
+      data-testid="booktile"
       key={book.id}
       elevation={3}
       sx={{
@@ -43,6 +44,7 @@ const BookTile = ({ book, onActionClick }) => {
         color={!book.borrowed ? "primary" : "secondary"}
         sx={{ width: "150px" }}
         onClick={() => onActionClick(setFetching)}
+        data-testid={book.borrowed ? "ReturnButton" : "BorrowButton"}
       >
         {book.borrowed ? "Return" : "Borrow"}
       </Button>

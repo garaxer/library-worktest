@@ -67,6 +67,7 @@ function Borrow() {
         }}
       >
         <Box
+          data-testid="borrowable"
           sx={{
             gap: 2,
             display: "flex",
@@ -80,13 +81,7 @@ function Borrow() {
           }}
         >
           {borrowableBooksData.length ? (
-            <Typography
-              gutterBottom
-              align="center"
-              pt={3}
-              underline
-              width="100%"
-            >
+            <Typography gutterBottom align="center" pt={3} width="100%">
               Borrow
             </Typography>
           ) : (
@@ -103,6 +98,7 @@ function Borrow() {
           ))}
         </Box>
         <Box
+          data-testid="borrowed"
           sx={{
             gap: 2,
             display: "flex",

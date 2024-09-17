@@ -1,18 +1,15 @@
-import { expect, test, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import Borrow from "../../routes/Borrow";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { useData, makeRequest } from "../../data";
+import Borrow from "../../routes/Borrow";
 
-// Mock the data fetching and request functions
 vi.mock("../../data", () => ({
   useData: vi.fn(),
   makeRequest: vi.fn(),
 }));
 
-test("Renders Borrow route correctly", async () => {
-  // Mock data for testing
-  const mockBorrowableBooks = [
+describe("Borrow Component", () => {
+  const borrowableBooks = [
     {
       id: 1,
       name: "Book One",
@@ -30,7 +27,7 @@ test("Renders Borrow route correctly", async () => {
       borrowed: false,
     },
   ];
-  const mockUnBorrowableBooks = [
+  const unBorrowableBooks = [
     {
       id: 3,
       name: "Book Three",
@@ -41,47 +38,66 @@ test("Renders Borrow route correctly", async () => {
     },
   ];
 
-  useData.mockImplementation((url, method) => {
-    if (url === "/book/borrowablebooks") return [mockBorrowableBooks, vi.fn()];
-    if (url === "/book/unborrowablebooks")
-      return [mockUnBorrowableBooks, vi.fn()];
+  beforeEach(() => {
+    useData.mockImplementation((path) => {
+      if (path === "/book/borrowablebooks") {
+        return [borrowableBooks, vi.fn()];
+      } else if (path === "/book/unborrowablebooks") {
+        return [unBorrowableBooks, vi.fn()];
+      }
+    });
+
+    makeRequest.mockResolvedValue(); // Mock successful API call
   });
 
-  makeRequest.mockResolvedValue({}); // Mock successful request
-
-  render(
-    <MemoryRouter>
-      <Borrow />
-    </MemoryRouter>
-  );
-
-  // Check for initial render
-  expect(screen.getByText(/Borrow\/Return a Book/i)).toBeInTheDocument();
-
-  // Check if books are rendered
-  mockBorrowableBooks.forEach((book) => {
-    expect(screen.getByText(book.name)).toBeInTheDocument();
-  });
-  mockUnBorrowableBooks.forEach((book) => {
-    expect(screen.getByText(book.name)).toBeInTheDocument();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  // Test clicking "Borrow" button
-  const borrowButton = screen.getAllByText(/Borrow/i)[0];
-  fireEvent.click(borrowButton);
+  it("renders loading indicator while fetching data", () => {
+    useData.mockReturnValue([null, vi.fn()]); // Simulate loading state
 
-  const returnButton = screen.getAllByText(/Return/i)[0];
-  fireEvent.click(returnButton);
-});
+    render(<Borrow />);
 
-test("Displays loading spinner when data is being fetched", () => {
-  useData.mockImplementation(() => [undefined, vi.fn()]);
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
 
-  render(
-    <MemoryRouter>
-      <Borrow />
-    </MemoryRouter>
-  );
+  it("renders book tiles correctly", async () => {
+    render(<Borrow />);
 
-  expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Borrow/Return a Book")).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByTestId("booktile")).toHaveLength(
+      borrowableBooks.length + unBorrowableBooks.length
+    );
+
+    expect(screen.getAllByText("Borrow")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("Return")[0]).toBeInTheDocument();
+
+    // Add more specific assertions for book tile content if needed
+  });
+
+  it("handles borrow action correctly", async () => {
+    render(<Borrow />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Borrow/Return a Book")).toBeInTheDocument();
+    });
+
+    const borrowButton = screen
+      .getAllByTestId("BorrowButton")[0]
+      .closest("button");
+    fireEvent.click(borrowButton);
+
+    expect(makeRequest).toHaveBeenCalledWith(
+      `/book/UpdateBookBorrowStatus/${borrowableBooks[0].id}`,
+      "PUT"
+    );
+
+    // ... (Add assertions for state updates and UI changes after the borrow action)
+  });
+
+  // Similarly, write a test for the "Return" action
 });
