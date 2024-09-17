@@ -40,10 +40,15 @@ namespace desi_library_api.Controllers
         }
 
         [HttpGet(Name = "GetBook")]
-        [Route("/book/GetBook")] 
-        public IEnumerable<Book> GetBook(int id) {
-            // TODO: Implement a way to get a single book's full information.
-            throw new NotImplementedException();
+        [Route("/book/GetBook")]
+        public ActionResult<Book> GetBook(int id)
+        {
+            var book = _bookContext.GetBook(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            return book;
         }
 
         [HttpGet(Name = "BorrowableBooks")]

@@ -18,9 +18,9 @@ namespace desi_library_api.Models
             return _books;
         }
 
-        // TODO: Implement
         public Book GetBook(int id) {
-            return null;
+            var book = _books.First(a => a.Id == id);
+            return book;
         }
 
         public IEnumerable<Book> BorrowableBooks()
