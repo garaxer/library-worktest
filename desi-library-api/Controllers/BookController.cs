@@ -40,7 +40,7 @@ namespace desi_library_api.Controllers
         }
 
         [HttpGet(Name = "GetBook")]
-        [Route("/book/GetBook")]
+        [Route("/book/getbook/{id}")]
         public ActionResult<Book> GetBook(int id)
         {
             var book = _bookContext.GetBook(id);
@@ -68,7 +68,7 @@ namespace desi_library_api.Controllers
 
         // Without being in a database, this update will not reflect in a next REST API request.
         [HttpPut]
-        [Route("/book/UpdateBookBorrowStatus")]
+        [Route("/book/UpdateBookBorrowStatus/{bookId}")]
         public ActionResult UpdateBookBorrowStatus(int bookId)
         {
             return _bookContext.UpdateBookBorrowStatus(bookId);

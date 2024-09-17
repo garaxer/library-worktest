@@ -1,4 +1,4 @@
-import { useData } from "../data";
+import { useData, getData } from "../data";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -8,9 +8,23 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 function Books() {
-  const booksData = useData("/book/getallbooks", "GET");
+  const [booksData, setBooksData] = useData("/book/getallbooks", "GET");
+
+  const [fetching, setFetching] = useState(false);
+  const getBookInfo = async (bookId) => {
+    setFetching(true);
+
+    const moreBookInfo = await getData(`/book/getbook/${bookId}`, "GET");
+    setBooksData(
+      booksData.map((book) =>
+        book.id === bookId ? { ...book, ...moreBookInfo } : book
+      )
+    );
+    setFetching(false);
+  };
 
   if (!booksData) {
     return (
@@ -40,35 +54,63 @@ function Books() {
             elevation={3}
             sx={{
               padding: 2,
-              display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
-              flexBasis: "calc(33.33% - 16px)", // 3 items per row with spacing
+              display: "flex",
+              flexDirection: "column",
+              flexBasis: "calc(33.33% - 16px)",
               maxWidth: "calc(33.33% - 16px)",
-              minHeight: "100px",
+              minHeight: "200px", // Increased height to accommodate List
               "@media (max-width: 1000px)": {
                 flexBasis: "100%",
                 maxWidth: "100%",
               },
             }}
           >
-            <ListItem>
-              <ListItemText primary={book.name} />
-            </ListItem>
-            <Link to={`/book/${book.id}`}>
+            <List>
+              <ListItem>
+                <ListItemText primary="Title" secondary={book.name} />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Author" secondary={book.author} />
+              </ListItem>
+
+              <ListItem>
+                <ListItemText
+                  primary="Borrowed"
+                  secondary={book.borrowed ? "Yes" : "No"}
+                />
+              </ListItem>
+              {book.language && (
+                <ListItem>
+                  <ListItemText primary="Language" secondary={book.language} />
+                </ListItem>
+              )}
+              {book.pages && (
+                <ListItem>
+                  <ListItemText primary="Pages" secondary={book.pages} />
+                </ListItem>
+              )}
+            </List>
+            {!book.language && (
               <Button
+                disabled={fetching}
                 variant="contained"
                 color="primary"
                 sx={{ width: "150px" }}
+                onClick={() => getBookInfo(book.id)}
               >
-                Borrow book
+                More info
               </Button>
-            </Link>
+            )}
           </Paper>
         ))}
       </Box>
 
-      <Button variant="contained" color="primary" sx={{ mt: 2 }}></Button>
+      <Link to="/borrow">
+        <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+          Borrow book
+        </Button>
+      </Link>
     </>
   );
 }
