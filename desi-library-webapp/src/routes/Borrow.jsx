@@ -1,60 +1,8 @@
 import { useData, makeRequest } from "../data";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import Paper from "@mui/material/Paper";
-import { useState } from "react";
-
-const BookTile = ({ book, onActionClick }) => {
-  const [fetching, setFetching] = useState(false);
-  return (
-    <Paper
-      key={book.id}
-      elevation={3}
-      sx={{
-        padding: 2,
-        justifyContent: "space-between",
-        display: "flex",
-        flexDirection: "column",
-        flexBasis: "calc(33.33% - 16px)",
-        maxWidth: "calc(33.33% - 16px)",
-        minHeight: "200px", // Increased height to accommodate List
-        "@media (max-width: 1000px)": {
-          flexBasis: "100%",
-          maxWidth: "100%",
-        },
-      }}
-    >
-      <List>
-        <ListItem>
-          <ListItemText primary="Title" secondary={book.name} />
-        </ListItem>
-        <ListItem>
-          <ListItemText primary="Author" secondary={book.author} />
-        </ListItem>
-        <ListItem>
-          <ListItemText primary="Language" secondary={book.language} />
-        </ListItem>
-        <ListItem>
-          <ListItemText primary="Pages" secondary={book.pages} />
-        </ListItem>
-      </List>
-      <Button
-        disabled={fetching}
-        variant="contained"
-        color={!book.borrowed ? "primary" : "secondary"}
-        sx={{ width: "150px" }}
-        onClick={() => onActionClick(setFetching)}
-      >
-        {book.borrowed ? "Return" : "Borrow"}
-      </Button>
-    </Paper>
-  );
-};
+import BookTile from "../components/BookTile";
 
 function Borrow() {
   const [borrowableBooksData, setBorrowableBooksData] = useData(
@@ -68,8 +16,8 @@ function Borrow() {
 
   const handleBookAction = async (bookId, borrowed, setFetching) => {
     setFetching(true);
+    // TODO implement react-query and do optimistic updates
     await makeRequest(`/book/UpdateBookBorrowStatus/${bookId}`, "PUT");
-
     if (borrowed) {
       setUnBorrowableBooksData((prev) =>
         prev.filter((book) => book.id !== bookId)
@@ -118,31 +66,72 @@ function Borrow() {
           gap: 2,
         }}
       >
-        <Typography gutterBottom align="center" p={2} width="100%">
-          Borrow
-        </Typography>
-        {borrowableBooksData.map((book) => (
-          <BookTile
-            key={book.id}
-            book={book}
-            onActionClick={(callback) =>
-              handleBookAction(book.id, false, callback)
-            }
-          />
-        ))}
-
-        <Typography gutterBottom align="center" p={2} width="100%">
-          Return
-        </Typography>
-        {unBorrowableBooksData.map((book) => (
-          <BookTile
-            key={book.id}
-            book={book}
-            onActionClick={(callback) =>
-              handleBookAction(book.id, true, callback)
-            }
-          />
-        ))}
+        <Box
+          sx={{
+            gap: 2,
+            display: "flex",
+            flexDirection: "column",
+            flexBasis: "calc(50% - 16px)",
+            maxWidth: "calc(50% - 16px)",
+            "@media (max-width: 1000px)": {
+              flexBasis: "100%",
+              maxWidth: "100%",
+            },
+          }}
+        >
+          {borrowableBooksData.length ? (
+            <Typography
+              gutterBottom
+              align="center"
+              pt={3}
+              underline
+              width="100%"
+            >
+              Borrow
+            </Typography>
+          ) : (
+            ""
+          )}
+          {borrowableBooksData.map((book) => (
+            <BookTile
+              key={book.id}
+              book={book}
+              onActionClick={(callback) =>
+                handleBookAction(book.id, false, callback)
+              }
+            />
+          ))}
+        </Box>
+        <Box
+          sx={{
+            gap: 2,
+            display: "flex",
+            flexDirection: "column",
+            flexBasis: "calc(50% - 16px)",
+            maxWidth: "calc(50% - 16px)",
+            "@media (max-width: 1000px)": {
+              flexBasis: "100%",
+              maxWidth: "100%",
+            },
+          }}
+        >
+          {unBorrowableBooksData.length ? (
+            <Typography gutterBottom align="center" pt={3} width="100%">
+              Return
+            </Typography>
+          ) : (
+            ""
+          )}
+          {unBorrowableBooksData.map((book) => (
+            <BookTile
+              key={book.id}
+              book={book}
+              onActionClick={(callback) =>
+                handleBookAction(book.id, true, callback)
+              }
+            />
+          ))}
+        </Box>
       </Box>
     </Box>
   );

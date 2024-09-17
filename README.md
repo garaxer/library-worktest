@@ -62,5 +62,9 @@ To start the backend API, run `dotnet run` in the API folder. It should be hoste
 ## Your Comments
 
 > Please leave any of your comments or docs below.
+
 I took the fact that you wanted to display more information about books on the books page as if you didn't want a new page just for a book, I used the /book/getbook to allow the user to get more information about the book to showcase the the endpoint.
 I would use a library like react-query for a larger project and do optimistic updating
+
+#### New packages:
+@testing-library/user-event - for easier testing
