@@ -1,4 +1,4 @@
-import { useData, getData } from "../data";
+import { useData, makeRequest } from "../data";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -17,7 +17,7 @@ function Books() {
   const getBookInfo = async (bookId) => {
     setFetching(true);
 
-    const moreBookInfo = await getData(`/book/getbook/${bookId}`, "GET");
+    const moreBookInfo = await makeRequest(`/book/getbook/${bookId}`, "GET");
     setBooksData(
       booksData.map((book) =>
         book.id === bookId ? { ...book, ...moreBookInfo } : book

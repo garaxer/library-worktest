@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
  * Represents a book in a library.
  * 
  * @typedef {Object} BooksData
- * @property {number} id - The unique identifier of the book.
- * @property {string} name - The title of the book.
- * @property {string} author - The author of the book.
- * @property {string} language - The language the book is written in.
- * @property {number} pages - The number of pages in the book.
- * @property {boolean} borrowed - Indicates whether the book is currently borrowed.
+ * @property {number} id 
+ * @property {string} name
+ * @property {string} author
+ * @property {string} language
+ * @property {number} pages 
+ * @property {boolean} borrowed 
  */
 
 /**
@@ -38,11 +38,10 @@ export const useData = (path, method, body) => {
   return [data, setData];
 };
 
-export const getData = async (path, method, body) => {
-    const json = await request(path, method, body);
+export const makeRequest = async (path, method, body) => {
+  const json = await request(path, method, body);
   return json;
 };
-
 
 const baseUrl = "http://localhost:5000";
 
@@ -58,6 +57,6 @@ const request = async (path, method, body) => {
 
   /** This artificial delay is intentional -- please do not remove it! */
   return await new Promise((resolve) =>
-    setTimeout(() => resolve(resp.json()), 2000)
+    setTimeout(() => resolve(method === 'PUT' ? resp : resp.json()), 2000)
   );
 };
