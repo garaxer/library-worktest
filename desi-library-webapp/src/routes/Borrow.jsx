@@ -125,8 +125,8 @@ function Borrow() {
           <BookTile
             key={book.id}
             book={book}
-            onActionClick={(setFetching) =>
-              handleBookAction(book.id, false, setFetching)
+            onActionClick={(callback) =>
+              handleBookAction(book.id, false, callback)
             }
           />
         ))}
@@ -138,8 +138,8 @@ function Borrow() {
           <BookTile
             key={book.id}
             book={book}
-            onActionClick={(setFetching) =>
-              handleBookAction(book.id, true, setFetching)
+            onActionClick={(callback) =>
+              handleBookAction(book.id, true, callback)
             }
           />
         ))}
