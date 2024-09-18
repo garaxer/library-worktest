@@ -7,7 +7,7 @@ namespace desi_library_api.Data
     {
 
         public DbSet<Book> Books { get; set; }
-        // public DbSet<BookBorrowRecs> BookBorrowRecs { get; set; }
+        public DbSet<BookBorrowRecs> BookBorrowRecs { get; set; }
 
     }
 }
