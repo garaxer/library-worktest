@@ -1,3 +1,4 @@
+using Clerk.Net.DependencyInjection;
 using desi_library_api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -14,7 +15,7 @@ builder.Services.AddCors(options =>
                           policy.WithOrigins("http://localhost:5173", 
                                              "http://localhost:5000")
                                 .WithMethods("GET", "POST", "PUT", "DELETE")
-                                .WithHeaders(HeaderNames.ContentType, "content-type");
+                                .WithHeaders(HeaderNames.ContentType, "content-type", "Authorization", "userId");
                       });
 });
 

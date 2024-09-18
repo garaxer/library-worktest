@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useAuth } from "@clerk/clerk-react";
 
 /**
  * Represents a book in a library.
@@ -20,13 +21,14 @@ import { useEffect, useState, useCallback } from "react";
  * @returns {BooksData} The data that was requested.
  */
 export const useData = (path, method, body) => {
+  const { getToken, userId } = useAuth();
   const [data, setData] = useState();
   const [error, setError] = useState();
 
   useEffect(() => {
     let ignore = false;
     setError(false);
-    request(path, method, body)
+    request(path, method, body, getToken, userId)
       .then((json) => {
         if (!ignore) {
           setData(json);
@@ -63,12 +65,16 @@ export const makeRequest = async (path, method, body) => {
 
 const baseUrl = "http://localhost:5000";
 
-const request = async (path, method, body) => {
+const request = async (path, method, body, getToken, userId) => {
+  const jwt = getToken && (await getToken());
+  console.log(jwt);
   const resp = await fetch(`${baseUrl}${path}`, {
     method,
     headers: new Headers({
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...(jwt && getToken && { Authorization: `Bearer ${jwt}` }),
+      ...(userId && { userId }), // For demo purposes
     }),
     body: body && JSON.stringify(body),
   });
