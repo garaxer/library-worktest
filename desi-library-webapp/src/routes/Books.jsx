@@ -5,20 +5,24 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import BookTileExpandable from "../components/BookTileExpandable";
 import { Link } from "react-router-dom";
+import List from "@mui/material/List";
+import Drawer from "@mui/material/Drawer";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import { useState } from "react";
 
 function Books() {
-  const [booksData, setBooksData] = useData("/book/getallbooks", "GET");
+  const [booksData] = useData("/book/getallbooks", "GET");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [bookData, setBookData] = useState(null);
 
-  const getBookInfo = async (bookId, setFetchingCallback) => {
-    setFetchingCallback(true);
-
-    const moreBookInfo = await makeRequest(`/book/getbook/${bookId}`, "GET");
-    setBooksData((booksData) =>
-      booksData.map((book) =>
-        book.id === bookId ? { ...book, ...moreBookInfo } : book
-      )
-    );
-    setFetchingCallback(false);
+  const getBookInfo = async (bookId, setIsFetchingCallback) => {
+    setBookData(null);
+    setIsDrawerOpen(true);
+    setIsFetchingCallback(true);
+    const moreBookData = await makeRequest(`/book/getbook/${bookId}`, "GET");
+    setBookData(moreBookData);
+    setIsFetchingCallback(false);
   };
 
   if (!booksData) {
@@ -31,10 +35,9 @@ function Books() {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom align="center" pb={"20px"}>
+      <Typography variant="h4" gutterBottom align="center" pb="20px">
         Current Books
       </Typography>
-
       <Box
         sx={{
           display: "flex",
@@ -57,6 +60,44 @@ function Books() {
           Borrow book
         </Button>
       </Link>
+
+      <Drawer
+        anchor="bottom"
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(null)}
+      >
+        <Box sx={{ height: "360px", padding: "20px" }}>
+          {bookData ? (
+            <List>
+              <ListItem>
+                <ListItemText primary="Title" secondary={bookData.name} />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Author" secondary={bookData.author} />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Borrowed"
+                  secondary={bookData.borrowed ? "Yes" : "No"}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Language"
+                  secondary={bookData.language}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Pages" secondary={bookData.pages} />
+              </ListItem>
+            </List>
+          ) : (
+            <CircularProgress
+              sx={{ marginLeft: "auto", marginRight: "auto", display: "flex" }}
+            />
+          )}
+        </Box>
+      </Drawer>
     </>
   );
 }
