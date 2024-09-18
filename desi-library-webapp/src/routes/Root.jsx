@@ -2,6 +2,7 @@ import { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
@@ -9,6 +10,12 @@ import Toolbar from "@mui/material/Toolbar";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, Outlet } from "react-router-dom";
 import Container from "@mui/material/Container";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 
 function Root() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -54,6 +61,16 @@ function Root() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               DESI Library
             </Typography>
+            <Box>
+              <SignedOut>
+                <SignInButton>
+                  <Button color="white">Sign in</Button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </Box>
           </Toolbar>
         </AppBar>
       </Box>
