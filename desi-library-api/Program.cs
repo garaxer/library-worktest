@@ -1,3 +1,5 @@
+using desi_library_api.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,11 @@ builder.Services.AddCors(options =>
                                 .WithHeaders(HeaderNames.ContentType, "content-type");
                       });
 });
+
+// database
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 // Add services to the container.
 

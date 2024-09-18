@@ -2,6 +2,7 @@
 using desi_library_api.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using desi_library_api.Data;
 
 namespace desi_library_api.Controllers
 {
@@ -10,33 +11,20 @@ namespace desi_library_api.Controllers
     public class BookController : ControllerBase
     {
         private readonly BookContext _bookContext;
+        private readonly ApplicationDbContext _dbContext;
 
-        public BookController()
+        public BookController(ApplicationDbContext _dbContext)
         {
-            var bs = new[]
-            {
-                new Book { Id = 1, Name = "Clean Code: A Handbook of Agile Software Craftsmanship", Author = "Robert C. Martin", Language = "English", Pages = 464, Borrowed = false },
-                new Book { Id = 2, Name = "Test Driven Development: By Example", Author = "Kent Beck", Language = "English", Pages = 240, Borrowed = true },
-                new Book { Id = 3, Name = "Design Patterns: Elements of Reusable Object-Oriented Software", Author = "Erich Gamma; Richard Helm; Ralph Johnson; John Vlissides", Language = "English", Pages = 416, Borrowed = false },
-                new Book { Id = 4, Name = "The Mythical Man-Month", Author = "Fred Brooks", Language = "English", Pages = 336, Borrowed = false },
-                new Book { Id = 5, Name = "The Phoenix Project", Author = "Gene Kim; Kevin Behr; George Spafford", Language = "English", Pages = 423, Borrowed = false }
-            };
-            _bookContext = new BookContext(new List<Book>(bs));
+            _bookContext = new BookContext(_dbContext);
+            this._dbContext = _dbContext;
         }
 
         [HttpGet(Name = "GetAllBooks")]
         [Route("/book/GetAllBooks")]
         public IEnumerable<SimpleBookDto> GetAllBooks()
         {
-            var allBooks = _bookContext.GetAll();
-            var reducedList = new List<SimpleBookDto>();
-
-            foreach (var book in allBooks)
-            {
-                reducedList.Add(new SimpleBookDto() {Id = book.Id, Name = book.Name, Author = book.Author});
-            }
-
-            return reducedList;
+            List<SimpleBookDto>? allBooks = _dbContext.Books.Select(book => new SimpleBookDto() { Id = book.Id, Name = book.Name, Author = book.Author }).ToList();
+            return allBooks;
         }
 
         [HttpGet(Name = "GetBook")]

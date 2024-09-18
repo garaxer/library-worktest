@@ -1,5 +1,8 @@
 #nullable disable
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace desi_library_api.Models
 {
@@ -20,8 +23,11 @@ namespace desi_library_api.Models
     // (If no record in this table for a book id, which means the book is available )
     public class BookBorrowRecs
     {
+        public int Id { get; set; }
         public DateTime DateTime { get; set; }
+
         public int UserId { get; set; }
+
         public int BookId { get; set; }
         public bool Borrowed { get; set; } // true for borrowed, and false if it is returned 
     }
