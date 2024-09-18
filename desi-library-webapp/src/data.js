@@ -21,16 +21,25 @@ import { useEffect, useState, useCallback } from "react";
  */
 export const useData = (path, method, body) => {
   const [data, setData] = useState();
+  const [error, setError] = useState();
 
   useEffect(() => {
     let ignore = false;
-    request(path, method, body).then((json) => {
-      if (!ignore) {
-        setData(json);
-      }
-    });
+    setError(false);
+    request(path, method, body)
+      .then((json) => {
+        if (!ignore) {
+          setData(json);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(true);
+      });
+
     return () => {
       ignore = true;
+      setError(false);
     };
   }, [path, method, body]);
 
@@ -44,7 +53,7 @@ export const useData = (path, method, body) => {
     [path, method, body]
   );
 
-  return [data, setData, refetch];
+  return [data, setData, refetch, error];
 };
 
 export const makeRequest = async (path, method, body) => {
