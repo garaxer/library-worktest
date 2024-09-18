@@ -5,10 +5,11 @@ import Paper from "@mui/material/Paper";
 import { useState } from "react";
 import Button from "@mui/material/Button";
 
-const BookTile = ({ book, getBookInfo }) => {
+const BookTileExpandable = ({ book, getBookInfo }) => {
   const [fetching, setFetching] = useState(false);
   return (
     <Paper
+      data-testid="BookTileExpandable"
       key={book.id}
       elevation={3}
       sx={{
@@ -55,6 +56,7 @@ const BookTile = ({ book, getBookInfo }) => {
           disabled={fetching}
           variant="contained"
           color="primary"
+          data-testid={`book-tile-${book.id}`}
           sx={{ width: "150px" }}
           onClick={() => getBookInfo(book.id, setFetching)}
         >
@@ -65,4 +67,4 @@ const BookTile = ({ book, getBookInfo }) => {
   );
 };
 
-export default BookTile;
+export default BookTileExpandable;

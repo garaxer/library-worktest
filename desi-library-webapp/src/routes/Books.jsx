@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import BookTileFull from "../components/BookTileFull";
+import BookTileExpandable from "../components/BookTileExpandable";
 import { Link } from "react-router-dom";
 
 function Books() {
@@ -44,7 +44,11 @@ function Books() {
         }}
       >
         {booksData.map((book) => (
-          <BookTileFull key={book.id} book={book} getBookInfo={getBookInfo} />
+          <BookTileExpandable
+            key={book.id}
+            book={book}
+            getBookInfo={getBookInfo}
+          />
         ))}
       </Box>
 
