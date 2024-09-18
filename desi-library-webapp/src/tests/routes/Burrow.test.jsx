@@ -47,7 +47,7 @@ describe("Borrow Component", () => {
       }
     });
 
-    makeRequest.mockResolvedValue(); // Mock successful API call
+    makeRequest.mockResolvedValue();
   });
 
   afterEach(() => {
@@ -75,8 +75,6 @@ describe("Borrow Component", () => {
 
     expect(screen.getAllByText("Borrow")[0]).toBeInTheDocument();
     expect(screen.getAllByText("Return")[0]).toBeInTheDocument();
-
-    // Add more specific assertions for book tile content if needed
   });
 
   it("handles borrow action correctly", async () => {
@@ -96,8 +94,9 @@ describe("Borrow Component", () => {
       "PUT"
     );
 
-    // ... (Add assertions for state updates and UI changes after the borrow action)
+    expect(screen.getAllByTestId("booktile")).toHaveLength(
+      borrowableBooks.length + unBorrowableBooks.length
+    );
   });
 
-  // Similarly, write a test for the "Return" action
 });
