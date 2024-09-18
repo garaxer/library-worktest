@@ -69,5 +69,6 @@ May have to run `dotnet ef database update`
 @testing-library/user-event - for easier testing
 
 TODO:
+- If I had authentication setup, I would make a third column on the borrow page indicating which books were borrowed by another user.
 - Backend unit tests
 - I would use a library like react-query for a larger project and do nicer optimistic updating
