@@ -41,9 +41,9 @@ describe("Borrow Component", () => {
   beforeEach(() => {
     useData.mockImplementation((path) => {
       if (path === "/book/borrowablebooks") {
-        return [borrowableBooks, vi.fn()];
+        return [borrowableBooks, vi.fn(), vi.fn()];
       } else if (path === "/book/unborrowablebooks") {
-        return [unBorrowableBooks, vi.fn()];
+        return [unBorrowableBooks, vi.fn(), vi.fn()];
       }
     });
 
@@ -90,8 +90,8 @@ describe("Borrow Component", () => {
     fireEvent.click(borrowButton);
 
     expect(makeRequest).toHaveBeenCalledWith(
-      `/book/UpdateBookBorrowStatus/${borrowableBooks[0].id}`,
-      "PUT"
+      `/book/getbook/${borrowableBooks[0].id}`,
+      "GET"
     );
 
     expect(screen.getAllByTestId("booktile")).toHaveLength(

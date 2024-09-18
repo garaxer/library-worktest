@@ -47,6 +47,7 @@ const BookTile = ({ book, onActionClick }) => {
         data-testid={book.borrowed ? "ReturnButton" : "BorrowButton"}
       >
         {book.borrowed ? "Return" : "Borrow"}
+        {fetching ? "ing" : ""}
       </Button>
     </Paper>
   );

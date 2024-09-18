@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
-
-  /**
+/**
  * Represents a book in a library.
- * 
+ *
  * @typedef {Object} BooksData
- * @property {number} id 
+ * @property {number} id
  * @property {string} name
  * @property {string} author
  * @property {string} language
- * @property {number} pages 
- * @property {boolean} borrowed 
+ * @property {number} pages
+ * @property {boolean} borrowed
  */
 
 /**
@@ -35,7 +34,17 @@ export const useData = (path, method, body) => {
     };
   }, [path, method, body]);
 
-  return [data, setData];
+  const refetch = useCallback(
+    async (callback) => {
+      const json = await request(path, method, body);
+      setData(json);
+      callback && callback(data);
+      return json;
+    },
+    [path, method, body]
+  );
+
+  return [data, setData, refetch];
 };
 
 export const makeRequest = async (path, method, body) => {
@@ -57,6 +66,6 @@ const request = async (path, method, body) => {
 
   /** This artificial delay is intentional -- please do not remove it! */
   return await new Promise((resolve) =>
-    setTimeout(() => resolve(method === 'PUT' ? resp : resp.json()), 2000)
+    setTimeout(() => resolve(method === "PUT" ? resp : resp.json()), 2000)
   );
 };

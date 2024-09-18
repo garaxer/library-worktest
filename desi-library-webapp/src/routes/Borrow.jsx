@@ -1,23 +1,48 @@
+import { useState } from "react";
 import { useData, makeRequest } from "../data";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar from "@mui/material/Snackbar";
 import BookTile from "../components/BookTile";
 
 function Borrow() {
-  const [borrowableBooksData, setBorrowableBooksData] = useData(
-    "/book/borrowablebooks",
-    "GET"
-  );
-  const [unBorrowableBooksData, setUnBorrowableBooksData] = useData(
-    "/book/unborrowablebooks",
-    "GET"
-  );
+  const [showWarning, setShowWarning] = useState();
+  const handleClose = () => {
+    setShowWarning(null);
+  };
+
+  const [borrowableBooksData, setBorrowableBooksData, refetchBorrowable] =
+    useData("/book/borrowablebooks", "GET");
+  const [unBorrowableBooksData, setUnBorrowableBooksData, refetchUnBorrowable] =
+    useData("/book/unborrowablebooks", "GET");
+
+  const handleReturningFailure = (borrowed) => {
+    setShowWarning(
+      `There was an issue ${
+        borrowed ? "return" : "borrow"
+      }ing this book. Library reloaded.`
+    );
+    refetchBorrowable();
+    refetchUnBorrowable();
+    return;
+  };
 
   const handleBookAction = async (bookId, borrowed, setFetching) => {
     setFetching(true);
-    // TODO implement react-query and do optimistic updates
-    await makeRequest(`/book/UpdateBookBorrowStatus/${bookId}`, "PUT");
+    const bookToUpdate = await makeRequest(`/book/getbook/${bookId}`, "GET");
+    // Prevent books from being borrowed until they are returned and their status updates in the backend.
+    if (
+      !bookToUpdate ||
+      (!borrowed && bookToUpdate.borrowed) ||
+      (borrowed && !bookToUpdate.borrowed)
+    ) {
+      handleReturningFailure(borrowed);
+      return;
+    }
+    setFetching(false);
+
+    // Optimistically update
     if (borrowed) {
       setUnBorrowableBooksData((prev) =>
         prev.filter((book) => book.id !== bookId)
@@ -42,7 +67,17 @@ function Borrow() {
       ]);
     }
 
-    setFetching(false);
+    try {
+      await makeRequest(`/book/UpdateBookBorrowStatus/${bookId}`, "PUT");
+      // Confirm the changes went through
+      const bookUpdated = await makeRequest(`/book/getbook/${bookId}`, "GET");
+      if (bookUpdated.borrowed === borrowed) {
+        handleReturningFailure(borrowed);
+      }
+    } catch (error) {
+      handleReturningFailure(borrowed);
+      return;
+    }
   };
 
   if (!borrowableBooksData || !unBorrowableBooksData) {
@@ -129,6 +164,14 @@ function Borrow() {
           ))}
         </Box>
       </Box>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "top" }}
+        open={showWarning}
+        onClose={handleClose}
+        message={showWarning}
+        autoHideDuration={10000}
+        severity="warning"
+      />
     </Box>
   );
 }
