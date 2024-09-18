@@ -12,7 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import { useState } from "react";
 
 function Books() {
-  const [booksData] = useData("/book/getallbooks", "GET");
+  const [booksData, _setter, _re, error] = useData("/book/getallbooks", "GET");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [bookData, setBookData] = useState(null);
 
@@ -24,6 +24,10 @@ function Books() {
     setBookData(moreBookData);
     setIsFetchingCallback(false);
   };
+
+  if (error) {
+    return <h1>Unable to fetch books at this time, try refresing.</h1>;
+  }
 
   if (!booksData) {
     return (

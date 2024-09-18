@@ -12,10 +12,18 @@ function Borrow() {
     setShowWarning(null);
   };
 
-  const [borrowableBooksData, setBorrowableBooksData, refetchBorrowable] =
-    useData("/book/borrowablebooks", "GET");
-  const [unBorrowableBooksData, setUnBorrowableBooksData, refetchUnBorrowable] =
-    useData("/book/unborrowablebooks", "GET");
+  const [
+    borrowableBooksData,
+    setBorrowableBooksData,
+    refetchBorrowable,
+    borrowErr,
+  ] = useData("/book/borrowablebooks", "GET");
+  const [
+    unBorrowableBooksData,
+    setUnBorrowableBooksData,
+    refetchUnBorrowable,
+    error,
+  ] = useData("/book/unborrowablebooks", "GET");
 
   const handleReturningFailure = (borrowed) => {
     setShowWarning(
@@ -79,6 +87,10 @@ function Borrow() {
       return;
     }
   };
+
+  if (error || borrowErr) {
+    return <h1>Unable to fetch books at this time, try refresing.</h1>;
+  }
 
   if (!borrowableBooksData || !unBorrowableBooksData) {
     return (
